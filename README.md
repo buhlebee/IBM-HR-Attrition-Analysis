@@ -46,7 +46,7 @@ employee retention.
 
 ------------------------------------------------------------------------
 
-# Project Workflow
+# What i did
 
 ### 1. Created the database table and imported the data
 
@@ -61,9 +61,9 @@ I used COUNT() and HAVING COUNT(*) > 1 to check for duplicate employee numbers. 
 I found:
 
 
-No duplicate employee numbers
-No null values in any key columns
-EmployeeCount, Over18 and StandardHours were all constant and excluded
+-   No duplicate employee numbers
+-   No null values in any key columns
+-   EmployeeCount, Over18 and StandardHours were all constant and excluded
 
 ### 3. Data Preparation
 

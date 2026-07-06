@@ -48,34 +48,44 @@ employee retention.
 
 # Project Workflow
 
-### 1. Database Setup
+### 1. Created the database table and imported the data
 
-I created the database table, imported the dataset into PostgreSQL and
-assigned the correct data types during the import process.
+I created the raw table and assigned data types upfront instead of importing everything as text. INT was used for numeric columns since there were no decimals in this dataset, and VARCHAR for text columns. This made the import straightforward and meant I did not have to cast or convert columns later.
 
 ### 2. Data Inspection
 
-I checked for duplicate employee IDs, null values and unnecessary
-columns. EmployeeCount, Over18 and StandardHours contained the same
-value for every record, so they were excluded.
+Before building anything I ran quality checks on the raw data.
+
+I used COUNT() and HAVING COUNT(*) > 1 to check for duplicate employee numbers. I also checked key columns for null values and verified that three columns, EmployeeCount, Over18 and StandardHours, had the same value across every single row, which meant they added nothing to the analysis and were excluded.
+
+I found:
+
+
+No duplicate employee numbers
+No null values in any key columns
+EmployeeCount, Over18 and StandardHours were all constant and excluded
 
 ### 3. Data Preparation
 
-I created a clean working table containing only the columns needed for
-the analysis.
+Once the inspection was done I created a new table called hr_data by selecting only the 15 columns I needed from the raw table. I did not need to reassign data types because I had already done that at the import stage.
 
 ### 4. SQL Analysis
 
-I built SQL views to analyse attrition by department, gender, job role,
-overtime, education, tenure, satisfaction, work-life balance and salary.
-I also created a row-level base view with attrition and overtime flags
-for Power BI.
+From hr_data I built 11 summary views covering attrition by gender, department, job role, overtime, education level, tenure period, distance from home, job satisfaction, environment satisfaction and work life balance.
+
+I also built a row level base view called hr_data_view with flag columns for attrition and overtime pre-calculated in SQL. This view was specifically designed to be imported into Power BI for DAX-driven interactivity.
+
+The reason I kept the summary views and the base view separate was intentional. The summary views are pre-aggregated so they load fast and feed static charts directly. The base view feeds all DAX measures and responds to slicers in real time.
+
+One thing I picked up during this step was that GROUP BY 1 was needed instead of referencing the column alias directly. PostgreSQL processes GROUP BY before it resolves aliases so using the position number was the clean fix.
 
 ### 5. Power BI Dashboard
 
-Using the base view, I created DAX measures, KPI cards, interactive
-visuals and slicers. Calculated columns were used to convert coded
-values into readable categories.
+I imported the base view into Power BI. From the base view I built DAX measures for the KPI cards and conditional measures to compare things like overtime vs non-overtime attrition rates. I also created calculated columns to decode the numeric education, satisfaction and tenure fields into readable labels using SWITCH.
+
+I used DIVIDE instead of a regular division / throughout to handle division by zero safely, which is the same concept as NULLIF in SQL.
+
+The dashboard has four pages: Overview, Departing, Reasons, and a Summary and Recommendations page. A department slicer on the Departing and Reasons pages filters every visual on those pages at once.
 
 ### 6. Findings and Recommendations
 
@@ -122,7 +132,7 @@ risks occur.
 -   `HR_RAW_TO_CLEAN.sql` -- data import, cleaning and preparation
 -   `hrdata_to_attrition_views.sql` -- SQL analysis views and Power BI
     base view
--   `HR_Analytics_Dashboard.pbix` -- Power BI dashboard
+-   HR_Analytics_Dashboard.pbix -- Power BI dashboard
 -   `process_map.png` -- Employee lifecycle process map
 
 ------------------------------------------------------------------------
